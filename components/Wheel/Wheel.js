@@ -2,19 +2,32 @@
 
 'use strict';
 
-import React, {Component} from "react";
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {StyleSheet, View, Text, Animated, PanResponder, ViewPropTypes} from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Animated,
+  PanResponder,
+  ViewPropTypes,
+} from 'react-native';
 
 import Theme from 'teaset/themes/Theme';
 import WheelItem from './WheelItem';
 
 export default class Wheel extends Component {
-
   static propTypes = {
     ...ViewPropTypes,
-    items: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.element, PropTypes.string, PropTypes.number])).isRequired,
+    items: PropTypes.arrayOf(
+      PropTypes.oneOfType([
+        PropTypes.element,
+        PropTypes.string,
+        PropTypes.number,
+      ]),
+    ).isRequired,
     itemStyle: Text.propTypes.style,
+    itemActiveStyle: Text.propTypes.style,
     holeStyle: ViewPropTypes.style, //height is required
     maskStyle: ViewPropTypes.style,
     holeLine: PropTypes.oneOfType([PropTypes.element, PropTypes.number]),
@@ -36,7 +49,8 @@ export default class Wheel extends Component {
     super(props);
     this.createPanResponder();
     this.prevTouches = [];
-    this.index = props.index || props.index === 0 ? props.index : props.defaultIndex;
+    this.index =
+      props.index || props.index === 0 ? props.index : props.defaultIndex;
     this.lastRenderIndex = this.index;
     this.height = 0;
     this.holeHeight = 0;
@@ -47,7 +61,9 @@ export default class Wheel extends Component {
 
   componentDidMount() {
     if (!this.positionListenerId) {
-      this.positionListenerId = this.currentPosition.addListener(e => this.handlePositionChange(e.value));
+      this.positionListenerId = this.currentPosition.addListener(e =>
+        this.handlePositionChange(e.value),
+      );
     }
   }
 
@@ -71,10 +87,13 @@ export default class Wheel extends Component {
       onStartShouldSetPanResponderCapture: (e, gestureState) => false,
       onMoveShouldSetPanResponder: (e, gestureState) => true,
       onMoveShouldSetPanResponderCapture: (e, gestureState) => false,
-      onPanResponderGrant: (e, gestureState) => this.onPanResponderGrant(e, gestureState),
-      onPanResponderMove: (e, gestureState) => this.onPanResponderMove(e, gestureState),
+      onPanResponderGrant: (e, gestureState) =>
+        this.onPanResponderGrant(e, gestureState),
+      onPanResponderMove: (e, gestureState) =>
+        this.onPanResponderMove(e, gestureState),
       onPanResponderTerminationRequest: (e, gestureState) => true,
-      onPanResponderRelease: (e, gestureState) => this.onPanResponderRelease(e, gestureState),
+      onPanResponderRelease: (e, gestureState) =>
+        this.onPanResponderRelease(e, gestureState),
       onPanResponderTerminate: (e, gestureState) => null,
       onShouldBlockNativeResponder: (e, gestureState) => true,
     });
@@ -87,11 +106,14 @@ export default class Wheel extends Component {
   }
 
   onPanResponderMove(e, gestureState) {
-    let {touches} = e.nativeEvent;
+    let { touches } = e.nativeEvent;
     let prevTouches = this.prevTouches;
     this.prevTouches = touches;
 
-    if (touches.length != 1 || touches[0].identifier != prevTouches[0].identifier) {
+    if (
+      touches.length != 1 ||
+      touches[0].identifier != prevTouches[0].identifier
+    ) {
       return;
     }
 
@@ -100,18 +122,27 @@ export default class Wheel extends Component {
     this.currentPosition.setValue(pos);
 
     let t = touches[0].timestamp - prevTouches[0].timestamp;
-    if (t) this.speed = dy / t;
+    if (t) {
+      this.speed = dy / t;
+    }
   }
 
   onPanResponderRelease(e, gestureState) {
     this.prevTouches = [];
-    if (Math.abs(this.speed) > 0.1) this.handleSwipeScroll();
-    else this.handleStopScroll();
+    if (Math.abs(this.speed) > 0.1) {
+      this.handleSwipeScroll();
+    } else {
+      this.handleStopScroll();
+    }
   }
 
   handlePositionChange(value) {
     let newIndex = Math.round(value / this.holeHeight);
-    if (newIndex != this.index && newIndex >= 0 && newIndex < this.props.items.length) {
+    if (
+      newIndex != this.index &&
+      newIndex >= 0 &&
+      newIndex < this.props.items.length
+    ) {
       let moveCount = Math.abs(newIndex - this.lastRenderIndex);
       this.index = newIndex;
       if (moveCount > this.constructor.preRenderCount) {
@@ -120,19 +151,25 @@ export default class Wheel extends Component {
     }
 
     // let the animation stop faster
-    if (this.targetPositionValue != null && Math.abs(this.targetPositionValue - value) <= 2) {
+    if (
+      this.targetPositionValue != null &&
+      Math.abs(this.targetPositionValue - value) <= 2
+    ) {
       this.targetPositionValue = null;
       this.currentPosition.stopAnimation();
     }
   }
 
   handleSwipeScroll() {
-    let {items} = this.props;
+    let { items } = this.props;
 
     let inertiaPos = this.currentPosition._value - this.speed * 300;
     let newIndex = Math.round(inertiaPos / this.holeHeight);
-    if (newIndex < 0) newIndex = 0;
-    else if (newIndex > items.length - 1) newIndex = items.length - 1;
+    if (newIndex < 0) {
+      newIndex = 0;
+    } else if (newIndex > items.length - 1) {
+      newIndex = items.length - 1;
+    }
 
     let toValue = newIndex * this.holeHeight;
     this.targetPositionValue = toValue;
@@ -162,7 +199,8 @@ export default class Wheel extends Component {
     this.holeHeight = holeHeight;
     if (holeHeight) {
       let maskHeight = (height - holeHeight) / 2;
-      this.hiddenOffset = Math.ceil(maskHeight / holeHeight) + this.constructor.preRenderCount;
+      this.hiddenOffset =
+        Math.ceil(maskHeight / holeHeight) + this.constructor.preRenderCount;
     }
     this.forceUpdate(() => {
       this.currentPosition.setValue(this.index * holeHeight);
@@ -179,26 +217,43 @@ export default class Wheel extends Component {
   }
 
   buildStyle() {
-    let {style} = this.props;
-    style = [{
-      backgroundColor: Theme.wheelColor,
-      overflow: 'hidden',
-    }].concat(style);
+    let { style } = this.props;
+    style = [
+      {
+        backgroundColor: Theme.wheelColor,
+        overflow: 'hidden',
+      },
+    ].concat(style);
     return style;
   }
 
   renderItem(item, itemIndex) {
-    let {itemStyle} = this.props;
+    let { itemStyle, itemActiveStyle } = this.props;
 
-    itemStyle = [{
-      backgroundColor: 'rgba(0, 0, 0, 0)',
-      fontSize: Theme.wheelFontSize,
-      color: Theme.wheelTextColor,
-    }].concat(itemStyle);
+    itemStyle = [
+      {
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        fontSize: Theme.wheelFontSize,
+        color: Theme.wheelTextColor,
+      },
+    ].concat(itemStyle);
 
-    if (Math.abs(this.index - itemIndex) > this.hiddenOffset) return null;
+    itemActiveStyle = [
+      {
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        fontSize: Theme.wheelFontSize,
+        color: Theme.wheelTextColor,
+      },
+      itemStyle,
+    ].concat(itemActiveStyle);
+
+    const active = this.index === itemIndex;
+
+    if (Math.abs(this.index - itemIndex) > this.hiddenOffset) {
+      return null;
+    }
     if (typeof item === 'string' || typeof item === 'number') {
-      item = <Text style={itemStyle}>{item}</Text>;
+      item = <Text style={active ? itemActiveStyle : itemStyle}>{item}</Text>;
     }
 
     return (
@@ -207,46 +262,73 @@ export default class Wheel extends Component {
         wheelHeight={this.height}
         index={itemIndex}
         currentPosition={this.currentPosition}
-        key={itemIndex}
-      >
+        key={itemIndex}>
         {item}
       </this.constructor.Item>
     );
   }
 
   renderMask() {
-    let {maskStyle} = this.props;
-    maskStyle = [{
-      backgroundColor: Theme.wheelMaskColor,
-      opacity: Theme.wheelMaskOpacity,
-      flex: 1,
-      zIndex: 100,
-    }].concat(maskStyle);
+    let { maskStyle } = this.props;
+    maskStyle = [
+      {
+        backgroundColor: Theme.wheelMaskColor,
+        opacity: Theme.wheelMaskOpacity,
+        flex: 1,
+        zIndex: 100,
+      },
+    ].concat(maskStyle);
     return <View style={maskStyle} />;
   }
 
   renderHole() {
-    let {holeStyle} = this.props;
-    holeStyle = [{
-      backgroundColor: 'rgba(0, 0, 0, 0)',
-      height: Theme.wheelHoleHeight,
-      zIndex: 1,
-    }].concat(holeStyle);
+    let { holeStyle } = this.props;
+    holeStyle = [
+      {
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        height: Theme.wheelHoleHeight,
+        zIndex: 1,
+      },
+    ].concat(holeStyle);
     return <View style={holeStyle} onLayout={e => this.onHoleLayout(e)} />;
   }
 
   renderHoleLine() {
-    let {holeLine} = this.props;
+    let { holeLine } = this.props;
     if (holeLine === undefined) {
-      holeLine = <View style={{height: Theme.wheelHoleLineWidth, backgroundColor: Theme.wheelHoleLineColor}} />;
+      holeLine = (
+        <View
+          style={{
+            height: Theme.wheelHoleLineWidth,
+            backgroundColor: Theme.wheelHoleLineColor,
+          }}
+        />
+      );
     } else if (typeof holeLine === 'number') {
-      holeLine = <View style={{height: holeLine, backgroundColor: Theme.wheelHoleLineColor}} />;
+      holeLine = (
+        <View
+          style={{ height: holeLine, backgroundColor: Theme.wheelHoleLineColor }}
+        />
+      );
     }
     return holeLine;
   }
 
   render() {
-    let {style, children, items, itemStyle, holeStyle, maskStyle, holeLine, index, defaultIndex, onChange, onLayout, ...others} = this.props;
+    let {
+      style,
+      children,
+      items,
+      itemStyle,
+      holeStyle,
+      maskStyle,
+      holeLine,
+      index,
+      defaultIndex,
+      onChange,
+      onLayout,
+      ...others
+    } = this.props;
 
     this.lastRenderIndex = this.index;
     return (
@@ -254,8 +336,7 @@ export default class Wheel extends Component {
         {...others}
         style={this.buildStyle()}
         onLayout={e => this.onLayout(e)}
-        {...this.panResponder.panHandlers}
-      >
+        {...this.panResponder.panHandlers}>
         {items.map((item, index) => this.renderItem(item, index))}
         {this.renderMask()}
         {this.renderHoleLine()}
@@ -263,7 +344,6 @@ export default class Wheel extends Component {
         {this.renderHoleLine()}
         {this.renderMask()}
       </View>
-    )
+    );
   }
-
 }

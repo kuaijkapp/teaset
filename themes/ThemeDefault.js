@@ -5,13 +5,13 @@
 import {PixelRatio} from 'react-native';
 
 //primary color
-const primaryColor = '#337ab7';
+const primaryColor = '#5B98FF';
 //secondary color
-const secondaryColor = '#5bc0de';
+const secondaryColor = '#C5DBFF';
 //default color
 const defaultColor = '#fff';
 //default text color
-const defaultTextColor = '#333';
+const defaultTextColor = '#212B39';
 
 //pixel size
 const pixelSize = (function() {
@@ -186,7 +186,7 @@ export default {
   stepperFontSize: 13,
   stepperBtnTextColor: defaultTextColor,
   stepperBtnFontSize: 13,
-  stepperValueMinWidth: 40,  
+  stepperValueMinWidth: 40,
   stepperValuePaddingHorizontal: 8,
   stepperButtonWidth: 20,
   stepperButtonHeight: 20,
@@ -364,7 +364,7 @@ export default {
   apItemPaddingVertical: 8,
   apItemPaddingHorizontal: 12,
   apSeparatorColor: '#ccc',
-  apSeparatorWidth: pixelSize,  
+  apSeparatorWidth: pixelSize,
 
   //PullPicker
   pupColor: '#f8f8f8',
